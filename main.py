@@ -1,10 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 import pandas as pd
-
-class RequestData(BaseModel):
-    mes: str
-    cpf_cnpj: str
 
 app = FastAPI()
 
@@ -12,7 +7,7 @@ mes_arquivos = {
     'janeiro': '',
     'fevereiro': '',
     'março': '',
-    'abriu': '',
+    'abril': '',
     'maio': '',
     'junho': '/content/drive/MyDrive/boletosjunho23.csv',
     'julho': '',
@@ -24,7 +19,7 @@ mes_arquivos = {
 }
 
 @app.get("/verificar/")
-def verificar_cpf_cnpj(mes: str, cpf_cnpj: str):
+async def verificar_cpf_cnpj(mes: str, cpf_cnpj: str):
     mes = mes.lower()
 
     if mes not in mes_arquivos:
@@ -40,7 +35,7 @@ def verificar_cpf_cnpj(mes: str, cpf_cnpj: str):
     except FileNotFoundError:
         raise HTTPException(status_code=500, detail="Erro ao carregar o arquivo CSV.")
 
-    df['ID'] = df['ID'].str.replace('.pdf', '')
+    df['ID'] = df['ID'].str.replace('.pdf', '', regex=False)
 
     if cpf_cnpj in df['ID'].values:
         link = df[df['ID'] == cpf_cnpj]['Link'].values[0]
